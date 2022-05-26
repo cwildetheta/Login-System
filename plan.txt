@@ -1,0 +1,7 @@
+Create a class/template that stores each seperate login.
+Create the output functions for setting the username, password, and secret message, and for attempting to log in.
+Stich the system together so that logins can be created, which will be stored in a vector of logins.
+The log in function will need to check through the stored logins whenever an attempt is made.
+Add the admin features, and account locking.
+Add a hashing system to the passwords (and secret messages?).
+Create a file storage system.
