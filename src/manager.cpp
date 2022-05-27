@@ -1,9 +1,16 @@
 #include "manager.h"
 #include "login.h"
+#include "string_checker.h"
 #include <thread>
 #include <chrono>
+#include <vector>
 
-manager::manager(){}
+manager::manager()
+{
+    accounts.push_back(login("Admin", "Adminpassword", "This is the admin account."));
+    accounts.begin()->set_admin_status(true);
+    accounts.push_back(login("Test", "Test", "Test"));
+}
 void manager::system_loop(){
     bool in_system_loop = true;
     while(in_system_loop == true){
@@ -14,6 +21,7 @@ void manager::system_loop(){
         std::cout << "                   q. Exit the system." << std::endl;
         char entry;
         std::cin >> entry;
+        std::cin.ignore();
         switch(entry){
             case 'a':
             case 'A':{
@@ -44,35 +52,66 @@ void manager::add_account(){
     system("cls");
     std::string username, password, secret_message;
     std::cout << "What would you like your username to be?" << std::endl;
-    std::cin.ignore();
     std::getline(std::cin, username);
     std::cout << "What would you like your password to be?" << std::endl;
     std::getline(std::cin, password);
-    std::cout << "What would you like your username to be?" << std::endl;
+    std::cout << "What would you like your secret message to be?" << std::endl;
     std::getline(std::cin, secret_message);
     system("cls");
-    std::cout << "Creating user " << username << "." << std::endl;
-    accounts.push_back(login(username, password, secret_message));
+    bool repeat_username = false;
+    for(auto elem : accounts){ //Doesn't need to be a reference, not changing anything.
+        if(username == elem.get_username()){
+            repeat_username = false;
+        }
+    }
+    if(repeat_username == true){
+        std::cout << "Error, an account with this username already exists." << std::endl;
+    }
+    else if(check_username(username) == false){
+        std::cout << "Error, username must have betwee 4 and 20 characters." << std::endl;
+    }
+    else if(check_password(password) == false){
+        std::cout << "Error, password must have more than 4 characters." << std::endl;
+    }
+    else{
+        std::cout << "Creating user " << username << "." << std::endl;
+        accounts.push_back(login(username, password, secret_message));
+    }
+    system("pause");
 }
 void manager::attempt_login(){
     system("cls");
     std::string username, password;
     std::cout << "Please enter your username: ";
-    std::cin.ignore();
     std::getline(std::cin, username);
     std::cout << "Please enter your password: ";
     std::getline(std::cin, password);
     system("cls");
-    std::cout << check_accounts(username, password) << std::endl;
-    system("pause");
+    if(check_accounts(username, password) == false){
+        std::cout << "Entered details do not match any account in the system." << std::endl;
+        system("pause");
+    }
 }
-std::string manager::check_accounts(std::string username, std::string password){
-    for(auto elem : accounts){
+bool manager::check_accounts(std::string username, std::string password){
+    for(auto &elem : accounts){
         if(elem.match_username(username) == true){
             if(elem.match_password(password) == true){
-                return elem.get_secret_message();
+                if(elem.get_locked_status() == false){
+                    if(elem.get_admin_status() == true){
+                        elem.account_loop(accounts);
+                    }
+                    else{
+                        std::vector<login> temp;
+                        elem.account_loop(temp);
+                    }
+                }
+                else{
+                    std::cout << "This account is currently locked. It will be unlocked in " << elem.query_lock_time() << " seconds. Please try again then." << std::endl;
+                    system("pause");
+                }
+                return true;
             }
         }
     }
-    return "Entered details do not match any account in the system.";
+    return false;
 }

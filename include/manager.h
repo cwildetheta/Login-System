@@ -13,7 +13,7 @@ class manager{
         void system_loop();
         void add_account();
         void attempt_login();
-        std::string check_accounts(std::string, std::string);
+        bool check_accounts(std::string, std::string);
 };
 
 #endif //MANAGER_H_INCLUDED
