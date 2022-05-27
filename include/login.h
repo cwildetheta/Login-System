@@ -6,6 +6,7 @@
 class login{
     private:
         std::string username, password, secret_message;
+        std::size_t hashed_password;
         bool is_admin, is_locked;
         clock_t lock_time;
 
