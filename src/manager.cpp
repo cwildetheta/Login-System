@@ -1,16 +1,37 @@
 #include "manager.h"
 #include "login.h"
 #include "string_checker.h"
+#include "json.hpp"
 #include <thread>
 #include <chrono>
 #include <vector>
 #include <functional>
+#include <fstream>
+
+using json = nlohmann::json;
 
 manager::manager()
 {
-    accounts.push_back(login("Admin", password_hasher("Adminpassword"), "This is the admin account."));
-    accounts.begin()->set_admin_status(true);
-    accounts.push_back(login("Test", password_hasher("Test"), "Test"));
+    std::ifstream test;
+    test.open("accounts.json", std::ifstream::binary);
+    if(test){
+        json read_in;
+        test >> read_in;
+        for(int i = 0; i < read_in["Number of accounts"]; i++){
+            std::string object_name = "Account " + std::to_string(i+1);
+            accounts.push_back(login(read_in[object_name]["Username"], read_in[object_name]["Hashed password"], read_in[object_name]["Secret message"]));
+            if(read_in[object_name]["Admin Status"] == true){
+                std::vector<login>::iterator i1 = accounts.end();
+                --i1;
+                i1->set_admin_status(true);
+            }
+        }
+    }
+    else{
+        accounts.push_back(login("Admin", password_hasher("Adminpassword"), "This is the admin account."));
+        accounts.begin()->set_admin_status(true);
+        accounts.push_back(login("Test", password_hasher("Test"), "Test"));
+    }
 }
 void manager::system_loop(){
     bool in_system_loop = true;
@@ -19,7 +40,6 @@ void manager::system_loop(){
         std::cout << "Welcome to the Login System. There are currently " << accounts.size() << " accounts in the system." << std::endl;
         std::cout << "Would you like to: a. Add an account." << std::endl;
         std::cout << "                   l. Attempt a login." << std::endl;
-        std::cout << "                   h. Test the hasher." << std::endl;
         std::cout << "                   q. Exit the system." << std::endl;
         char entry;
         std::cin >> entry;
@@ -35,29 +55,10 @@ void manager::system_loop(){
                 attempt_login();
                 break;
             }
-            case 'h':
-            case 'H':{
-                system("cls");
-                std::cout << "Enter test password: ";
-                std::string test_password;
-                std::getline(std::cin, test_password);
-                std::cout << "The hashed password is: " << password_hasher(test_password) << std::endl;
-                std::this_thread::sleep_for(std::chrono::seconds(2));
-                std::cout << "Enter a second test password: ";
-                std::string test_password2;
-                std::getline(std::cin, test_password2);
-                std::cout << "The hashed password is: " << password_hasher(test_password2) << std::endl;
-                system("pause");
-                system("cls");
-                break;
-            }
             case 'q':
             case 'Q':{
-                system("cls");
-                std::cout << "Exiting the system." << std::endl;
-                std::this_thread::sleep_for(std::chrono::seconds(2));
+                quit();
                 in_system_loop = false;
-                system("cls");
                 break;
             }
             default:{
@@ -105,9 +106,15 @@ void manager::attempt_login(){
     std::cout << "Please enter your password: ";
     std::getline(std::cin, password);
     system("cls");
-    if(check_accounts(username, password) == false){
+    if(check_password(password) == false){
         std::cout << "Entered details do not match any account in the system." << std::endl;
         system("pause");
+    }
+    else{
+        if(check_accounts(username, password) == false){
+            std::cout << "Entered details do not match any account in the system." << std::endl;
+            system("pause");
+        }
     }
 }
 bool manager::check_accounts(std::string username, std::string password){
@@ -132,4 +139,27 @@ bool manager::check_accounts(std::string username, std::string password){
         }
     }
     return false;
+}
+void manager::quit(){
+    system("cls");
+    std::cout << "Exiting the system." << std::endl;
+    std::this_thread::sleep_for(std::chrono::seconds(2));
+    json account_json;
+    account_json["Number of accounts"] = accounts.size();
+    int i = 1;
+    for(auto elem : accounts){
+        std::string object_name = "Account " + std::to_string(i);
+        account_json[object_name] = {
+            {"Username", elem.get_username()},
+            {"Hashed password", elem.get_password()},
+            {"Secret message", elem.get_secret_message()},
+            {"Admin Status", elem.get_admin_status()}
+        };
+        i++;
+    }
+    std::ofstream account_json_file;
+    account_json_file.open("accounts.json");
+    account_json_file << std::setw(4) << account_json << std::endl;
+    account_json_file.close();
+    system("cls");
 }

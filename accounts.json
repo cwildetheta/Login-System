@@ -1,0 +1,21 @@
+{
+    "Account 1": {
+        "Admin Status": true,
+        "Hashed password": "@{StsmjWrA|YFq_hqfn^dwDdK~qKulhp",
+        "Secret message": "This is the admin account.",
+        "Username": "Admin"
+    },
+    "Account 2": {
+        "Admin Status": false,
+        "Hashed password": "@{b^IyYp{WGiavRvTp{gLQ~pGUYyzhuR",
+        "Secret message": "Test",
+        "Username": "Test"
+    },
+    "Account 3": {
+        "Admin Status": false,
+        "Hashed password": "@kRM_{ZCPe`esyT~wCqE|An`rof~GBHQ",
+        "Secret message": "Let's see if this is stored correctly.",
+        "Username": "Test2"
+    },
+    "Number of accounts": 3
+}

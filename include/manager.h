@@ -14,6 +14,7 @@ class manager{
         void add_account();
         void attempt_login();
         bool check_accounts(std::string, std::string);
+        void quit();
 };
 
 #endif //MANAGER_H_INCLUDED

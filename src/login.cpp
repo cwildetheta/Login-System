@@ -256,6 +256,7 @@ void login::set_locked_status(bool bool_input){is_locked = bool_input;}
 void login::set_lock_time(clock_t time_input){lock_time = time_input;}
 
 std::string login::get_username(){return username;}
+std::string login::get_password(){return password;}
 std::string login::get_secret_message(){return secret_message;}
 bool login::get_admin_status(){return is_admin;}
 bool login::get_locked_status(){return is_locked;}

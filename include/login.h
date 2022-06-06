@@ -31,6 +31,7 @@ class login{
         void set_lock_time(clock_t);
 
         std::string get_username();
+        std::string get_password();
         std::string get_secret_message();
         bool get_admin_status();
         bool get_locked_status();
