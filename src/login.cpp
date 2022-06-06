@@ -184,9 +184,9 @@ void login::change_password()
     std::cout << "What would you like your new password to be?" << std::endl;
     std::string entry;
     std::getline(std::cin, entry);
-    if(entry != password){
+    if(password_hasher(entry) != password){
         if(check_password(entry) == true){
-            set_password(entry);
+            set_password(password_hasher(entry));
             system("cls");
             std::cout << "New password set." << std::endl;
         }

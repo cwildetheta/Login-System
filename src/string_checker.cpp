@@ -20,11 +20,17 @@ std::string password_hasher(const std::string& password)
 {
     int password_length = password.length();
     std::string hashed_password;
+    int sum = 0, product = 1;
+    for(int i = 0; i < password_length; i++){
+        sum += static_cast<int>(password.at(i));
+        product *= static_cast<int>(password.at(i));
+        product = (product%1000000) + 1;
+    }
     for(int i = 0; i < 32; i++){
         int k = i%password_length;
         int elem = static_cast<int>(password.at(k));
         int addition = static_cast<int>(password.at((k+1)%password_length));
-        long long resulting_value = ((elem*std::pow(2, (i+4))) + addition)/(10*i);
+        long long resulting_value = (((elem*std::pow(2, (i+4))) + addition)/(10*i)) + sum + product;
         char resulting_character = static_cast<char>((resulting_value%64)+64);
         hashed_password = hashed_password + resulting_character;
     }
